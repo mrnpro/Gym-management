@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymmanagement/Home/home.dart';
 
 import 'package:gymmanagement/Navigator/navigate.dart';
 import 'package:gymmanagement/Scanner/qrscan.dart';
@@ -13,9 +14,6 @@ class CheckOut extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("Choose"),
-        ),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -23,14 +21,30 @@ class CheckOut extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleAvatar(radius: 100),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigate.neverReturn(context, Home());
+                          },
+                          icon: Icon(Icons.arrow_back)),
+                      Text(
+                        "Checkout",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      ksize,
+                      ksize
+                    ],
+                  ),
+                  const CircleAvatar(radius: 100),
                   ksize,
                   Container(
                     width: size.width,
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: kslight,
+                      color: ksecondary,
                     ),
                     child: Center(child: Text("Natnael Fikadu")),
                   ),
@@ -40,7 +54,7 @@ class CheckOut extends StatelessWidget {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: kslight,
+                      color: ksecondary,
                     ),
                     child: Center(child: Text("20days left")),
                   ),
