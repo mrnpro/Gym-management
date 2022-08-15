@@ -1,9 +1,13 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:gymmanagement/Navigator/navigate.dart';
+import 'package:gymmanagement/Services/auth_service.dart';
+import 'package:gymmanagement/Services/db_service.dart';
+import 'package:gymmanagement/models/customers/customers_model.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants.dart';
@@ -26,7 +30,34 @@ class _RegisterCustomerState extends State<RegisterCustomer> {
     setState(() {});
   }
 
+  Future generateId() async {
+    var currentId;
+    var id;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection("id")
+          .doc("generated")
+          .get()
+          .then((value) {
+        currentId = value;
+      });
+      id = currentId['current'];
+      id++;
+      await FirebaseFirestore.instance
+          .collection("id")
+          .doc("generated")
+          .update({"current": id});
+    } catch (e) {
+      print(e);
+    }
+    return id++;
+  }
+
   final _formKey = GlobalKey<FormState>();
+  TextEditingController fullname = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController age = TextEditingController();
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -78,6 +109,7 @@ class _RegisterCustomerState extends State<RegisterCustomer> {
                           child: Column(
                             children: [
                               TextFormField(
+                                controller: fullname,
                                 validator: (value) {
                                   if (value!.isEmpty) {
                                     return "please enter full name";
@@ -91,6 +123,7 @@ class _RegisterCustomerState extends State<RegisterCustomer> {
                               ),
                               ksize,
                               TextFormField(
+                                controller: age,
                                 validator: (value) {
                                   if (value!.isEmpty) {
                                     return "please enter age";
@@ -105,6 +138,7 @@ class _RegisterCustomerState extends State<RegisterCustomer> {
                               ),
                               ksize,
                               TextFormField(
+                                controller: phone,
                                 validator: (value) {
                                   if (value!.isEmpty) {
                                     return "please enter phone number";
@@ -126,8 +160,22 @@ class _RegisterCustomerState extends State<RegisterCustomer> {
                               borderRadius: BorderRadius.circular(5)),
                           backgroundColor: kprimary,
                         ),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            var id = await generateId();
+                            String imageUrl =
+                                await DbService().imageupload(image);
+                            DbService().addCustomer(
+                              CustomersModel(
+                                  fullname.text.trim(),
+                                  age.text.trim(),
+                                  phone.text.trim(),
+                                  FieldValue.serverTimestamp(),
+                                  imageUrl,
+                                  id.toString()),
+                              context,
+                            );
+                          }
                         },
                         child: const Center(
                             child: Text(
